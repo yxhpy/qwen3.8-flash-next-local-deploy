@@ -1,6 +1,6 @@
 # 单卡 16 GB 显卡私有部署 Qwen3.8-Flash-Next（Strata）完整方案
 
-> 基于 2026-10-12 实际部署整理。`<尖括号>` 是需要换成自己的值。**任何 key 都不要写进文档或聊天记录。**
+> 基于 2026-10-12 实际部署整理，2026-10-19 按 GPU 主机上正在运行的配置更新（64 GB 内存、Strata v0.1.44.1、256K 上下文、会话缓存）。`<尖括号>` 是需要换成自己的值。**任何 key 都不要写进文档或聊天记录。**
 
 ## 0. 架构
 
@@ -12,7 +12,7 @@ VPS：nginx → new-api（分组 local-gpu，OpenAI 类型渠道，并发 3）
    │  Tailscale（WireGuard 加密，不暴露公网端口）
    ▼
 GPU 主机：Strata 服务  http://<TAILNET_IP>:8080   ← Strata 自己的 API key
-   └─ Qwen3.8-Flash-Next GSQ-RCO IQ3_XXS，128K 上下文，systemd 开机自启
+   └─ Qwen3.8-Flash-Next GSQ-RCO IQ3_XXS，256K 上下文，systemd 开机自启
 ```
 
 只在 GPU 主机本机使用的话，§6 的 Tailscale 和 §7 的 new-api 可以跳过，Strata 监听 `127.0.0.1` 即可。
@@ -24,8 +24,8 @@ GPU 主机：Strata 服务  http://<TAILNET_IP>:8080   ← Strata 自己的 API 
 - [ ] §2 硬件满足要求，选好量化档位
 - [ ] §3 BIOS：XMP + Resizable BAR，memtester 通过
 - [ ] §4 Ubuntu 24.04 + Ubuntu 源 NVIDIA 驱动；装 CUDA Toolkit 13.0，并锁住驱动不被 NVIDIA 源替换
-- [ ] §5 安装 Strata v0.1.43，下载模型、编译引擎
-- [ ] §6 改 Strata 配置：128K、关有损优化、思考上限、fit_max_tokens
+- [ ] §5 安装 Strata（最初 v0.1.43，现运行 v0.1.44.1），下载模型、编译引擎
+- [ ] §6 改 Strata 配置：256K、会话缓存、关有损优化、思考上限、fit_max_tokens
 - [ ] §7 Tailscale + API key + systemd 服务
 - [ ] §8 new-api：分组、渠道、定价、令牌
 - [ ] §9 客户端配置
@@ -38,7 +38,7 @@ GPU 主机：Strata 服务  http://<TAILNET_IP>:8080   ← Strata 自己的 API 
 | 项目 | 本次实际 | 最低 / 建议 |
 |---|---|---|
 | GPU | RTX 4080 SUPER 16 GB（Ada） | NVIDIA 12 GB 起；RTX 20–50 系列 |
-| 内存 | 46 GB DDR4（2×8 + 2×16） | 32 GB 起；64 GB 能跑满所有量化 |
+| 内存 | 64 GB DDR4-3200（系统可见 62.6 GiB；最初部署时为 46 GB，2×8 + 2×16） | 32 GB 起；64 GB 能跑满所有量化 |
 | CPU | i7-12700（AVX2，无 AVX-512） | 必须支持 AVX2 |
 | 磁盘 | ext4 根分区 200 GB | 空闲 ≥ 160 GB（权重 75.8 GB + experts.bin 42.9 GB + MTP 约 6 GB + CUDA 约 10 GB） |
 | 系统 | Ubuntu 24.04.5，内核 7.0，驱动 595.99.02 | Ubuntu 24.04 原生（WSL 不能做 KV streaming） |
@@ -123,8 +123,13 @@ tail -f ~/strata-setup.log
 `args` 里：
 
 ```json
-"--max-context", "131072",
-"--kv-resident", "32768"
+"--max-context", "262144",
+"--resident-experts",
+"--kv-resident", "32768",
+"--conversation-cache-mib", "12288",
+"--prompt-cache-tail",
+"--conversation-cache-slots", "4",
+"--conversation-cache-min-tokens", "4096"
 ```
 
 顶层（`args` 之外）：
@@ -133,24 +138,31 @@ tail -f ~/strata-setup.log
 "host": "<TAILNET_IP>",
 "env": {
   "STRATA_ROUTE_TAIL_SKIP": "0",
-  "STRATA_RESIDENT_HEADROOM_GIB": "6"
+  "STRATA_RESIDENT_HEADROOM_GIB": "6",
+  "MALLOC_MMAP_THRESHOLD_": "16777216"
 },
 "reasoning_budget_tokens": 4096,
 "reasoning_close_retry": true,
 "reasoning_effort": "medium",
-"fit_max_tokens": true
+"fit_max_tokens": true,
+"sampling": {"temperature": 1.0, "top_p": 0.95, "top_k": 20}
 ```
 
 | 配置 | 作用 | 为什么 |
 |---|---|---|
-| `--max-context 131072` + `--kv-resident 32768` | 128K 上下文；KV 放 3 GiB 锁页内存，显存只留 32K 窗口 | 无损；46 GB 内存下 128K 是上限，256K 需要 64 GB+ |
+| `--max-context 262144` + `--kv-resident 32768` | 256K 上下文；KV 放 6 GiB 锁页内存，显存只留 32K 窗口 | 无损；64 GB 内存下可用（46 GB 时只能开 128K，KV 3 GiB） |
+| `--resident-experts` | 专家全部锁页放内存（64 GB 下约 35.6 GiB），运行中不从磁盘读专家 | 长 prompt 不再从 SSD 读专家 |
+| `--conversation-cache-mib 12288` + `--conversation-cache-slots 4` + `--conversation-cache-min-tokens 4096` | 多个长会话交替时，把切走的会话快照停放在内存，切回来秒级恢复；短于 4096 token 的请求不占槽 | 无损。快照约 38 KiB/token（100K ≈ 3.6 GiB，200K ≈ 7.3 GiB）；实际能放多少由「可用内存 − 2560 MiB 保底」决定，12 GiB 只是上限 |
+| `--prompt-cache-tail` | 在 prompt 末尾附近多存一个检查点 | 无损，不改分块；只帮助「修改点在末尾附近」的会话少重读 |
 | `STRATA_ROUTE_TAIL_SKIP=0` | 关闭 v0.1.42 起默认开启的有损跳专家 | 质量优先。打开约 +28% decode，但输出会变 |
 | `STRATA_RESIDENT_HEADROOM_GIB=6` | 给系统多留 2 GiB 内存 | setup 针对约 47 GB 内存的建议，测速无差别 |
+| `MALLOC_MMAP_THRESHOLD_=16777216` | 固定 glibc 的 mmap 阈值，快照内存释放后直接还给系统 | 不设时释放的快照留在 glibc 堆里（10-19 实测堆 6.8 GiB、缓存只占 1.3 GiB），可用内存上不去，停放被拒。只影响内存分配，不影响输出。参考 Strata #3115（该方法在 0.1.45 上不够用） |
 | `reasoning_budget_tokens: 4096` | 思考硬上限，到点自动收尾再作答 | 模型模板默认 xhigh，Claude Code 经 new-api 会被映射成 high→xhigh，曾一次想 1.7 万 token、4 分半 |
 | `reasoning_close_retry: true` | 想完没正文时自动补一次作答 | 防止 agent 卡住 |
 | `reasoning_effort: medium` | 请求未指定档位时的默认值 | 兜底 |
 | `fit_max_tokens: true` | prompt + max_tokens 超出上下文时自动缩小 max_tokens | Claude Code 每次带 32000，否则 prompt 超过约 99K 就 400 |
 | `host` | 只监听 tailnet IP | 不暴露到局域网/公网 |
+| `sampling` | 显式写出采样参数 | v0.1.45 起配置里没有此块时默认采样会变，显式写上，升级不受影响 |
 
 保持默认、已实测无提升的：`--spec 4`、`--spec-min-p 0.5`、`--expert-cache auto`、`--kv int8`、`STRATA_EXCHANGE_ROTATE`、`STRATA_ADAPT_OVERLAP`、`--aux-cpus`、`--pool-workers`、CPU performance 调频。`--kv q4_0` / `k8v4` 长文档精度下降，不用。
 
@@ -343,6 +355,8 @@ curl -s https://<NEWAPI_DOMAIN>/v1/chat/completions -H "Authorization: Bearer <�
 
 ## 11. 实测性能（RTX 4080 SUPER + 46 GB DDR4-3200 + ReBAR，IQ3_XXS，128K）
 
+下表是 2026-10-12 的测量。升级到 64 GB / 256K 后，10-15～10-19 共 96.6 小时的线上统计：decode 平均 65.3 tok/s；≥32K 的 prompt 命中缓存时平均 1.9 s 读完，从零重读 66 次、平均 84 s，占 prompt 读取时间的 45%。10-19 起加了 `MALLOC_MMAP_THRESHOLD_`、12 GiB 缓存上限和 `--prompt-cache-tail`，效果待统计。
+
 | 测试 | 结果 |
 |---|---|
 | 短对话 decode | 58.8 tok/s（XMP 前 47.6） |
@@ -369,6 +383,8 @@ curl -s https://<NEWAPI_DOMAIN>/v1/chat/completions -H "Authorization: Bearer <�
 10. low-RAM 模式下长 prompt（50K+）会有部分专家从 SSD 读，prefill 比内存充足时慢，属预期。
 11. memtester 1 轮只是快速检查，混插内存跑 XMP 建议 MemTest86 过夜；出现乱码或异常退出先怀疑 XMP。
 12. new-api 是主从节点时，写操作发 master，slave 同步可能有延迟。
+13. **会话缓存停放被拒（`skip parking (physical RAM admission ...)`）**：先看引擎 `[heap]` 的 RSS 是否远大于缓存实际字节数。是的话，就是 glibc 没把释放的快照内存还给系统，设 `MALLOC_MMAP_THRESHOLD_=16777216`（§6）。
+14. 启动时 Strata 报 `only N MiB of VRAM free (below 512 MiB)`：本机开着桌面时只剩约 365 MiB。目前 decode 未受影响；如果出现掉到每秒几个 token，先考虑关桌面（§14）。
 
 ---
 
@@ -385,13 +401,15 @@ tail -f ~/Strata/strata-iq3_xxs.log   # 引擎日志
 - 每次改配置前先备份：`cp strata-iq3_xxs.json strata-iq3_xxs.json.bak-$(date +%Y%m%d-%H%M%S)`。
 - 升级：`cd ~/Strata && git fetch --tags && git checkout <新tag> && ./setup.sh`；先看 release 说明里有没有改默认值（例如 tail-skip 就是 0.1.42 新加的默认有损项）。
 - 换量化：先删旧模型目录和 `packs/` 再装，磁盘放不下两个版本。
+- 缓存效果统计（在本项目所在的 Mac 上运行）：`tools/strata_cache_stats.sh [N]`，N=1 统计当前这次启动，N=2 统计上一次启动；输出冷读次数和时间、停放/恢复次数、引擎堆内存。
 
 ## 14. 可选的进一步优化
 
 | 项目 | 效果 | 代价 |
 |---|---|---|
-| 内存加到 64 GB+ | 更多专家常驻、长 prompt 不读 SSD、可开 256K | 换内存条 |
+| ~~内存加到 64 GB+~~ | **已完成**：专家全部常驻、长 prompt 不读 SSD、已开 256K | — |
+| 升级 v0.1.45 | 前缀借用、`--prompt-cache-spread` 等，减少历史被改写后的重读 | **暂缓**：#3115 会话缓存可能被清空；16 GB 卡升级后要重调 `--vram-reserve-mib`（#3087、#3140）；本机这类重读只占冷读时间约 12% |
 | `STRATA_ROUTE_TAIL_SKIP=7` | decode 约 +28% | **有损**，输出会变 |
 | 思考上限 2048 | 响应更快 | 复杂推理变弱 |
 | 换 IQ2_XS / Q2_0 | decode 约 +25–50% | 均分降约 3.5 |
-| GPU 主机无桌面运行 | 多出约 230 MiB 显存、1.5 GB 内存 | 不能当桌面用 |
+| GPU 主机无桌面运行 | 10-19 实测：桌面占显存 188 MiB、内存约 0.9 GiB；关掉后专家槽 5120 → 5188（+1.3%），空闲显存仍约 365 MiB（被专家缓存用掉）。临时关：`sudo systemctl isolate multi-user.target`；恢复：`sudo systemctl start gdm` 或重启机器 | 不能当桌面用 |
