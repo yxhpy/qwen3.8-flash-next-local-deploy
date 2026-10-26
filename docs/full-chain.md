@@ -1,6 +1,6 @@
 # 单卡 16 GB 显卡私有部署 Qwen3.8-Flash-Next（Strata）完整方案
 
-> 基于 2026-10-12 实际部署整理，2026-10-19 按 GPU 主机上正在运行的配置更新（64 GB 内存、Strata v0.1.44.1、256K 上下文、会话缓存）。`<尖括号>` 是需要换成自己的值。**任何 key 都不要写进文档或聊天记录。**
+> 基于 2026-10-12 实际部署整理，2026-10-26 按本机已验证配置补充（64 GB 内存、Strata v0.1.44.1、FP16 KV、256K 上下文、会话缓存和调度优化）。`<尖括号>` 是需要换成自己的值。**任何 key 都不要写进文档或聊天记录。**
 
 ## 0. 架构
 
@@ -129,7 +129,8 @@ tail -f ~/strata-setup.log
 "--conversation-cache-mib", "12288",
 "--prompt-cache-tail",
 "--conversation-cache-slots", "4",
-"--conversation-cache-min-tokens", "4096"
+"--conversation-cache-min-tokens", "4096",
+"--pool-tasks", "192"
 ```
 
 顶层（`args` 之外）：
@@ -139,7 +140,9 @@ tail -f ~/strata-setup.log
 "env": {
   "STRATA_ROUTE_TAIL_SKIP": "0",
   "STRATA_RESIDENT_HEADROOM_GIB": "6",
-  "MALLOC_MMAP_THRESHOLD_": "16777216"
+  "MALLOC_MMAP_THRESHOLD_": "16777216",
+  "STRATA_ADAPT_OVERLAP": "1",
+  "STRATA_ADAPT_OVERLAP_RESIDENT": "1"
 },
 "reasoning_budget_tokens": 4096,
 "reasoning_close_retry": true,
@@ -164,7 +167,9 @@ tail -f ~/strata-setup.log
 | `host` | 只监听 tailnet IP | 不暴露到局域网/公网 |
 | `sampling` | 显式写出采样参数 | v0.1.45 起配置里没有此块时默认采样会变，显式写上，升级不受影响 |
 
-保持默认、已实测无提升的：`--spec 4`、`--spec-min-p 0.5`、`--expert-cache auto`、`--kv int8`、`STRATA_EXCHANGE_ROTATE`、`STRATA_ADAPT_OVERLAP`、`--aux-cpus`、`--pool-workers`、CPU performance 调频。`--kv q4_0` / `k8v4` 长文档精度下降，不用。
+2026-10-26 新增 `--pool-tasks 192` 与两个 overlap 环境变量；本机实际配置的生成速度中位数提高 6.6%–11.3%，11 组固定执行计划的数值检查通过。任务数不是线程数，原工作线程数不变。完整边界见 [调度与缓存实测](benchmarks-2026-10-26.md)。
+
+本次运行时报告 KV 为 **fp16**，没有调整 KV 精度；旧记录中的 int8 不代表本次基线。保持原有 `--spec 4`、`--spec-min-p 0.5` 和 `--expert-cache auto`。辅助 CPU、减少工作线程、performance 调频没有形成稳定采用理由；exchange rotation 因专家块大小不统一而回退。不要把本机结果当成其他硬件的最佳参数。
 
 ---
 

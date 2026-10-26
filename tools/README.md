@@ -40,3 +40,7 @@ sudo systemctl start strata
 ```
 
 注意：Strata 在 greedy 下也不是逐次确定的（多 token CPU 内核的舍入随 MTP drafting 变化，Strata DETAILS.md「Reproducible greedy output」），默认参数下同一版本几轮之间输出就可能不同。`strata_ab.py` 的报告因此先列每组自己的轮间稳定性，再和基准组比。
+
+## 2026-10-26 结果复核
+
+`python3 tools/verify_benchmark_results.py` 从公开合成记录复核 12 组正式配对、11 组固定计划数值一致性、中位数与缓存计时。`python3 tools/plot_benchmarks.py` 重绘三张 PNG/SVG 图表，需 matplotlib 和中文字体。两者均不访问模型或更改服务。

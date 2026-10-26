@@ -1,0 +1,359 @@
+{
+  "counted_generation_records": 249,
+  "production_configuration_comparison": {
+    "short": {
+      "baseline": {
+        "samples": 4,
+        "median_tokens_per_second": 73.35,
+        "median_first_token_seconds": 0.6356677140001921
+      },
+      "optimized": {
+        "samples": 4,
+        "median_tokens_per_second": 81.65,
+        "median_first_token_seconds": 0.6126971539997612
+      },
+      "ratio_of_median_speed": 1.1131561008861623,
+      "paired_speed_ratios": [
+        1.1260162601626016,
+        1.1253481894150419,
+        1.0879999999999999,
+        1.120713305898491
+      ],
+      "all_pairs_faster": true
+    },
+    "code": {
+      "baseline": {
+        "samples": 4,
+        "median_tokens_per_second": 81.65,
+        "median_first_token_seconds": 0.6124420354999529
+      },
+      "optimized": {
+        "samples": 4,
+        "median_tokens_per_second": 88.25,
+        "median_first_token_seconds": 0.5754793680002876
+      },
+      "ratio_of_median_speed": 1.0808328230251072,
+      "paired_speed_ratios": [
+        1.1037037037037039,
+        1.075609756097561,
+        1.0787207872078721,
+        1.076829268292683
+      ],
+      "all_pairs_faster": true
+    },
+    "8k": {
+      "baseline": {
+        "samples": 4,
+        "median_tokens_per_second": 76.3,
+        "median_first_token_seconds": 4.663955038500717
+      },
+      "optimized": {
+        "samples": 4,
+        "median_tokens_per_second": 81.35,
+        "median_first_token_seconds": 4.657258017999993
+      },
+      "ratio_of_median_speed": 1.066186107470511,
+      "paired_speed_ratios": [
+        1.1163398692810458,
+        1.0276315789473685,
+        1.088082901554404,
+        1.0341655716162945
+      ],
+      "all_pairs_faster": true
+    }
+  },
+  "fixed_plan_numerical_parity": {
+    "short_code_8k": {
+      "fixed-combined": {
+        "request_sha256": 9,
+        "text_sha256": 9,
+        "logits_sha256": 9,
+        "state_sha256": 9,
+        "total": 9
+      },
+      "fixed-base-2": {
+        "request_sha256": 9,
+        "text_sha256": 9,
+        "logits_sha256": 9,
+        "state_sha256": 9,
+        "total": 9
+      }
+    },
+    "speeds": {
+      "baseline": {
+        "short": {
+          "samples": 4,
+          "median_tokens_per_second": 74.4,
+          "median_first_token_seconds": 0.5486404270000094
+        },
+        "code": {
+          "samples": 4,
+          "median_tokens_per_second": 80.25,
+          "median_first_token_seconds": 0.68424729499975
+        },
+        "8k": {
+          "samples": 4,
+          "median_tokens_per_second": 71.45,
+          "median_first_token_seconds": 4.702696530499907
+        }
+      },
+      "optimized": {
+        "short": {
+          "samples": 2,
+          "median_tokens_per_second": 82.4,
+          "median_first_token_seconds": 0.5256129370000053
+        },
+        "code": {
+          "samples": 2,
+          "median_tokens_per_second": 88.15,
+          "median_first_token_seconds": 0.6583735999997771
+        },
+        "8k": {
+          "samples": 2,
+          "median_tokens_per_second": 78.95,
+          "median_first_token_seconds": 4.690181878000203
+        }
+      }
+    }
+  },
+  "candidate_screening": {
+    "screen-aux": {
+      "short": {
+        "tokens_per_second": 71.75,
+        "ratio_to_screen_baseline": 1.0006973500697351
+      },
+      "code": {
+        "tokens_per_second": 77.85,
+        "ratio_to_screen_baseline": 1.0025756600128781
+      },
+      "8k": {
+        "tokens_per_second": 73.25,
+        "ratio_to_screen_baseline": 1.0237596086652692
+      }
+    },
+    "screen-aux_no_stager": {
+      "short": {
+        "tokens_per_second": 71.65,
+        "ratio_to_screen_baseline": 0.9993026499302652
+      },
+      "code": {
+        "tokens_per_second": 77.65,
+        "ratio_to_screen_baseline": 1.0
+      },
+      "8k": {
+        "tokens_per_second": 73.30000000000001,
+        "ratio_to_screen_baseline": 1.024458420684836
+      }
+    },
+    "screen-governor": {
+      "short": {
+        "tokens_per_second": 71.65,
+        "ratio_to_screen_baseline": 0.9993026499302652
+      },
+      "code": {
+        "tokens_per_second": 78.0,
+        "ratio_to_screen_baseline": 1.0045074050225369
+      },
+      "8k": {
+        "tokens_per_second": 71.4,
+        "ratio_to_screen_baseline": 0.9979035639412999
+      }
+    },
+    "screen-overlap": {
+      "short": {
+        "tokens_per_second": 77.5,
+        "ratio_to_screen_baseline": 1.080892608089261
+      },
+      "code": {
+        "tokens_per_second": 83.1,
+        "ratio_to_screen_baseline": 1.0701867353509336
+      },
+      "8k": {
+        "tokens_per_second": 79.1,
+        "ratio_to_screen_baseline": 1.105520614954577
+      }
+    },
+    "screen-rotate": {
+      "short": {
+        "tokens_per_second": 71.7,
+        "ratio_to_screen_baseline": 1.0000000000000002
+      },
+      "code": {
+        "tokens_per_second": 77.69999999999999,
+        "ratio_to_screen_baseline": 1.0006439150032194
+      },
+      "8k": {
+        "tokens_per_second": 73.2,
+        "ratio_to_screen_baseline": 1.0230607966457024
+      }
+    },
+    "screen-tasks192": {
+      "short": {
+        "tokens_per_second": 73.5,
+        "ratio_to_screen_baseline": 1.0251046025104604
+      },
+      "code": {
+        "tokens_per_second": 80.05000000000001,
+        "ratio_to_screen_baseline": 1.0309079201545397
+      },
+      "8k": {
+        "tokens_per_second": 73.0,
+        "ratio_to_screen_baseline": 1.0202655485674355
+      }
+    },
+    "screen-tasks96": {
+      "short": {
+        "tokens_per_second": 73.0,
+        "ratio_to_screen_baseline": 1.0181311018131103
+      },
+      "code": {
+        "tokens_per_second": 79.19999999999999,
+        "ratio_to_screen_baseline": 1.0199613650998065
+      },
+      "8k": {
+        "tokens_per_second": 74.45,
+        "ratio_to_screen_baseline": 1.040531097134871
+      }
+    },
+    "screen-workers7": {
+      "short": {
+        "tokens_per_second": 71.2,
+        "ratio_to_screen_baseline": 0.9930264993026501
+      },
+      "code": {
+        "tokens_per_second": 77.35,
+        "ratio_to_screen_baseline": 0.9961365099806824
+      },
+      "8k": {
+        "tokens_per_second": 70.75,
+        "ratio_to_screen_baseline": 0.9888190076869322
+      }
+    },
+    "screen-workers9": {
+      "short": {
+        "tokens_per_second": 70.2,
+        "ratio_to_screen_baseline": 0.97907949790795
+      },
+      "code": {
+        "tokens_per_second": 76.15,
+        "ratio_to_screen_baseline": 0.9806825499034127
+      },
+      "8k": {
+        "tokens_per_second": 69.85,
+        "ratio_to_screen_baseline": 0.976240391334731
+      }
+    }
+  },
+  "long_context": [
+    {
+      "target": 32768,
+      "input_tokens": 32932,
+      "cached_tokens": 32894,
+      "cold_first_token_seconds": 19.526848385999983,
+      "baseline_restore_plus_first_token_seconds": 1.2967776240002422,
+      "optimized_restore_seconds": 0.7659317320003538,
+      "optimized_first_token_after_restore_seconds": 0.5112575159992048,
+      "optimized_restore_plus_first_token_seconds": 1.2771892479995586,
+      "cold_over_restore_ratio": 15.288923248128324,
+      "baseline_decode_tokens_per_second": 63.4,
+      "optimized_decode_tokens_per_second": 70.3,
+      "default_policy_parity": {
+        "snapshot_equal": true,
+        "request_sha256_equal": true,
+        "text_sha256_equal": true,
+        "logits_sha256_equal": true,
+        "final_state_sha256_equal": true,
+        "restored_sha256_equal": true
+      },
+      "fixed_plan_parity": {
+        "snapshot_equal": true,
+        "request_sha256_equal": true,
+        "text_sha256_equal": true,
+        "logits_sha256_equal": true,
+        "final_state_sha256_equal": true,
+        "restored_sha256_equal": true
+      }
+    },
+    {
+      "target": 102400,
+      "input_tokens": 102565,
+      "cached_tokens": 102527,
+      "cold_first_token_seconds": 60.06843238200054,
+      "baseline_restore_plus_first_token_seconds": 2.531738069998937,
+      "optimized_restore_seconds": 1.961893044000135,
+      "optimized_first_token_after_restore_seconds": 0.5532064170001831,
+      "optimized_restore_plus_first_token_seconds": 2.515099461000318,
+      "cold_over_restore_ratio": 23.88312403284036,
+      "baseline_decode_tokens_per_second": 59.3,
+      "optimized_decode_tokens_per_second": 66.0,
+      "default_policy_parity": {
+        "snapshot_equal": false,
+        "request_sha256_equal": true,
+        "text_sha256_equal": true,
+        "logits_sha256_equal": true,
+        "final_state_sha256_equal": false,
+        "restored_sha256_equal": true
+      },
+      "fixed_plan_parity": {
+        "snapshot_equal": false,
+        "request_sha256_equal": true,
+        "text_sha256_equal": true,
+        "logits_sha256_equal": true,
+        "final_state_sha256_equal": true,
+        "restored_sha256_equal": true
+      }
+    }
+  ],
+  "runtime_peak_observations": {
+    "production_baseline": {
+      "max_watts": 190.45,
+      "max_gpu_celsius": 48.0
+    },
+    "production_optimized": {
+      "max_watts": 191.63,
+      "max_gpu_celsius": 49.0
+    }
+  },
+  "date": "2026-10-26",
+  "hardware": {
+    "gpu": "RTX 4080 SUPER 16 GB",
+    "cpu": "Intel Core i7-12700",
+    "ram": "64 GB DDR4-3200",
+    "os": "Ubuntu 24.04",
+    "driver": "595.99.02 open",
+    "power_limit_w": 320
+  },
+  "runtime": {
+    "engine": "Strata 0.1.44.1",
+    "model": "Qwen3.8-Flash-Next SC117 GSQ-RCO abliterated IQ3_XXS",
+    "kv": "fp16",
+    "context": 262144,
+    "pool_workers": 11,
+    "participating_threads": 12
+  },
+  "applied": {
+    "args_add": [
+      "--pool-tasks",
+      "192"
+    ],
+    "env_add": {
+      "STRATA_ADAPT_OVERLAP": "1",
+      "STRATA_ADAPT_OVERLAP_RESIDENT": "1"
+    },
+    "kernel_errors_observed": 0,
+    "original_session_tokens_preserved": 103765,
+    "original_session_sha256_equal": true,
+    "gpu_unlock_retained": false
+  },
+  "notes": [
+    "249 recorded generations include warmups and screening; they are not 249 independent formal A/B pairs.",
+    "Natural configuration was tested in A-B-B-A engine order. Each side has 4 measured samples per workload, 12 matched pairs in total.",
+    "Exact numerical parity uses fixed common execution controls in both arms: 9 short/code/8K cases plus 2 long-context continuations.",
+    "All 248320 first-step float32 logits, output text and complete saved-state SHA256 values match in those 11 cases. This is not a benchmark-suite quality evaluation.",
+    "Original adaptive draft policy can choose different execution grouping from elapsed time. Baseline repeats themselves differ; default-mode arbitrary-output identity is not claimed.",
+    "Cold versus disk-restored cache timing is one measured continuation per context length. It includes restore time but excludes model loading.",
+    "The 100K raw snapshot round trip changes 12 derived index spare rows and payload checksum. Baseline and optimized restored state hashes match; fixed-plan final state hashes also match.",
+    "One host and synthetic workloads. End-to-end task success, multi-client latency and long-term stability are outside these measurements.",
+    "No precision reduction, model change, context reduction, new tail skipping, or increased power limit was applied."
+  ]
+}

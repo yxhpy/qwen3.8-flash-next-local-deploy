@@ -1,0 +1,401 @@
+{
+  "date": "2026-10-26",
+  "gpu": "RTX 4080 SUPER 16GB (10de:2702)",
+  "source_commit": "d28c485418c3d9d034cd4bac19200bc33dd3453b",
+  "controlled_comparison": {
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "input_lengths": [
+      8192,
+      32768,
+      131072
+    ],
+    "expert_cache_budget": 3600,
+    "actual_unlocked_slots": 4815,
+    "capacity_guard": "Requires matching actual cache slots, cache bytes, resident arena and effective runtime fields before measuring stock.",
+    "actual_stock_slots": 4815,
+    "expert_cache_mib": 7997,
+    "runtime_facts_identical": true,
+    "pcie_share_after_warmup": 0.2,
+    "scheduler": "Same original automatic policy in both states; warmup excluded, both converged to 0.20."
+  },
+  "comparisons": {
+    "mma_TF_s": {
+      "f16/f16": {
+        "stock": 216.0,
+        "unlocked": 216.6,
+        "speedup": 1.0027777777777778
+      },
+      "f16/f32": {
+        "stock": 108.1,
+        "unlocked": 216.6,
+        "speedup": 2.003700277520814
+      },
+      "bf16/f32": {
+        "stock": 108.0,
+        "unlocked": 215.8,
+        "speedup": 1.9981481481481482
+      },
+      "s8/s32": {
+        "stock": 430.8,
+        "unlocked": 431.9,
+        "speedup": 1.0025533890436396
+      },
+      "fp8/e4m3": {
+        "stock": 215.2,
+        "unlocked": 431.5,
+        "speedup": 2.005111524163569
+      },
+      "dp4a": {
+        "stock": 107.2,
+        "unlocked": 107.4,
+        "speedup": 1.001865671641791
+      },
+      "ffma": {
+        "stock": 51.5,
+        "unlocked": 51.6,
+        "speedup": 1.0019417475728156
+      }
+    },
+    "gemm_TF_s": {
+      "FP16/FP32 1024": {
+        "stock": 77.243167,
+        "unlocked": 124.436985,
+        "speedup": 1.6109772531724393
+      },
+      "BF16/FP32 1024": {
+        "stock": 77.296545,
+        "unlocked": 124.195176,
+        "speedup": 1.606736445982159
+      },
+      "FP16/FP32 4096": {
+        "stock": 101.903974,
+        "unlocked": 195.909695,
+        "speedup": 1.9224931797066127
+      },
+      "BF16/FP32 4096": {
+        "stock": 101.488962,
+        "unlocked": 193.986472,
+        "speedup": 1.9114046313726214
+      },
+      "FP16/FP32 8192": {
+        "stock": 108.592694,
+        "unlocked": 199.480738,
+        "speedup": 1.8369627886752677
+      },
+      "BF16/FP32 8192": {
+        "stock": 108.582155,
+        "unlocked": 197.065669,
+        "speedup": 1.814899225383766
+      }
+    },
+    "tensor_modes_Top_s": {
+      "f16_f32": {
+        "stock": 108.02198826892453,
+        "unlocked": 215.13236831046302,
+        "speedup": 1.9915609012387685
+      },
+      "tf32": {
+        "stock": 54.02398169308342,
+        "unlocked": 107.5776892591943,
+        "speedup": 1.9912950857705338
+      },
+      "u4_s32": {
+        "stock": 858.822988224813,
+        "unlocked": 858.9935227500653,
+        "speedup": 1.0001985677230238
+      }
+    },
+    "llm": {
+      "cold 8192": {
+        "ttft_s": {
+          "stock": 4.695804275999961,
+          "unlocked": 4.446058047999969,
+          "change_pct": -5.318497393011745,
+          "stock_range": [
+            4.689044691999925,
+            4.702563859999998
+          ],
+          "unlocked_range": [
+            4.442423050999992,
+            4.449693044999947
+          ]
+        },
+        "elapsed_s": {
+          "stock": 7.627504350499976,
+          "unlocked": 7.436488142499968,
+          "change_pct": -2.5043080832525044,
+          "stock_range": [
+            7.618558914999994,
+            7.636449785999957
+          ],
+          "unlocked_range": [
+            7.435578152999938,
+            7.437398131999998
+          ]
+        },
+        "prompt_per_second": {
+          "stock": 1756.0500000000002,
+          "unlocked": 1855.5,
+          "change_pct": 5.663278380456127,
+          "stock_range": [
+            1753.7,
+            1758.4
+          ],
+          "unlocked_range": [
+            1853.9,
+            1857.1
+          ]
+        },
+        "predicted_per_second": {
+          "stock": 86.65,
+          "unlocked": 84.9,
+          "change_pct": -2.0196191575302946,
+          "stock_range": [
+            86.2,
+            87.1
+          ],
+          "unlocked_range": [
+            84.8,
+            85.0
+          ]
+        },
+        "code_checks": {
+          "stock": 2,
+          "unlocked": 2
+        }
+      },
+      "cold 32768": {
+        "ttft_s": {
+          "stock": 17.97500289299998,
+          "unlocked": 17.091129636000005,
+          "change_pct": -4.917235687033927,
+          "stock_range": [
+            17.962409467999976,
+            17.987596317999987
+          ],
+          "unlocked_range": [
+            17.06518036,
+            17.11707891200001
+          ]
+        },
+        "elapsed_s": {
+          "stock": 21.06799321349999,
+          "unlocked": 20.14421894099999,
+          "change_pct": -4.384728356130562,
+          "stock_range": [
+            20.940929691999997,
+            21.19505673499998
+          ],
+          "unlocked_range": [
+            20.009023103000004,
+            20.27941477899998
+          ]
+        },
+        "prompt_per_second": {
+          "stock": 1828.1,
+          "unlocked": 1922.5,
+          "change_pct": 5.163831300257105,
+          "stock_range": [
+            1826.8,
+            1829.4
+          ],
+          "unlocked_range": [
+            1919.2,
+            1925.8
+          ]
+        },
+        "predicted_per_second": {
+          "stock": 82.25,
+          "unlocked": 83.35,
+          "change_pct": 1.3373860182370745,
+          "stock_range": [
+            79.2,
+            85.3
+          ],
+          "unlocked_range": [
+            80.4,
+            86.3
+          ]
+        },
+        "code_checks": {
+          "stock": 2,
+          "unlocked": 2
+        }
+      },
+      "reuse 32768": {
+        "ttft_s": {
+          "stock": 0.12353298749997066,
+          "unlocked": 0.11793020100000717,
+          "change_pct": -4.535457786095243,
+          "stock_range": [
+            0.11829110999997283,
+            0.12877486499996849
+          ],
+          "unlocked_range": [
+            0.11615738600005443,
+            0.11970301599995992
+          ]
+        },
+        "elapsed_s": {
+          "stock": 3.085830321499998,
+          "unlocked": 3.1707700864999993,
+          "change_pct": 2.752574061127011,
+          "stock_range": [
+            3.074900447999994,
+            3.0967601950000017
+          ],
+          "unlocked_range": [
+            3.14430384100001,
+            3.1972363319999886
+          ]
+        },
+        "prompt_per_second": {
+          "stock": 87.1,
+          "unlocked": 92.2,
+          "change_pct": 5.855338691159595,
+          "stock_range": [
+            83.3,
+            90.9
+          ],
+          "unlocked_range": [
+            90.9,
+            93.5
+          ]
+        },
+        "predicted_per_second": {
+          "stock": 85.75,
+          "unlocked": 83.2,
+          "change_pct": -2.9737609329446024,
+          "stock_range": [
+            85.6,
+            85.9
+          ],
+          "unlocked_range": [
+            82.5,
+            83.9
+          ]
+        },
+        "code_checks": {
+          "stock": 2,
+          "unlocked": 2
+        }
+      },
+      "cold 131072": {
+        "ttft_s": {
+          "stock": 74.21210708749993,
+          "unlocked": 70.33351240399998,
+          "change_pct": -5.226363777714715,
+          "stock_range": [
+            74.10413761399991,
+            74.32007656099995
+          ],
+          "unlocked_range": [
+            70.326515965,
+            70.34050884299995
+          ]
+        },
+        "elapsed_s": {
+          "stock": 77.35251733499996,
+          "unlocked": 73.61342275700002,
+          "change_pct": -4.833836967201188,
+          "stock_range": [
+            77.29189544199994,
+            77.41313922799998
+          ],
+          "unlocked_range": [
+            73.61331913000004,
+            73.61352638400001
+          ]
+        },
+        "prompt_per_second": {
+          "stock": 1768.3,
+          "unlocked": 1866.3000000000002,
+          "change_pct": 5.542046032912973,
+          "stock_range": [
+            1765.8,
+            1770.8
+          ],
+          "unlocked_range": [
+            1866.2,
+            1866.4
+          ]
+        },
+        "predicted_per_second": {
+          "stock": 80.9,
+          "unlocked": 77.44999999999999,
+          "change_pct": -4.264524103831913,
+          "stock_range": [
+            79.7,
+            82.1
+          ],
+          "unlocked_range": [
+            77.3,
+            77.6
+          ]
+        },
+        "code_checks": {
+          "stock": 2,
+          "unlocked": 2
+        }
+      }
+    }
+  },
+  "runtime_fact_differences": {},
+  "output_comparison": [
+    {
+      "round": 1,
+      "tokens": 8192,
+      "kind": "cold",
+      "identical": false
+    },
+    {
+      "round": 1,
+      "tokens": 32768,
+      "kind": "cold",
+      "identical": false
+    },
+    {
+      "round": 1,
+      "tokens": 32768,
+      "kind": "reuse",
+      "identical": false
+    },
+    {
+      "round": 1,
+      "tokens": 131072,
+      "kind": "cold",
+      "identical": false
+    },
+    {
+      "round": 2,
+      "tokens": 8192,
+      "kind": "cold",
+      "identical": true
+    },
+    {
+      "round": 2,
+      "tokens": 32768,
+      "kind": "cold",
+      "identical": false
+    },
+    {
+      "round": 2,
+      "tokens": 32768,
+      "kind": "reuse",
+      "identical": false
+    },
+    {
+      "round": 2,
+      "tokens": 131072,
+      "kind": "cold",
+      "identical": false
+    }
+  ],
+  "hardware_samples": {
+    "mma_per_state": 7,
+    "gemm_per_shape_per_state": 3,
+    "llm_per_case_per_state": 2
+  },
+  "note": "Separate experiment from the scheduling study. Single-card experimental unlock; not retained. No universal model-output parity or reliability claim."
+}

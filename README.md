@@ -1,8 +1,16 @@
-# 【实测分享】16G 显卡 + 46G 内存本地跑 Qwen3.8-Flash-Next（125B MoE）：Strata + GSQ-RCO 部署全流程（Ubuntu 24.04）
+# 16 GB 显卡运行 Qwen3.8-Flash-Next 的部署与实测
 
-> **一句话**：RTX 4080 SUPER 16G + 46G DDR4，Ubuntu 24.04，GSQ-RCO IQ3_XXS 量化，128K 上下文，短对话约 59 tok/s，agent 多轮约 72 tok/s，全程本地推理。
+> 当前配置：RTX 4080 SUPER 16 GB + 64 GB DDR4-3200，Ubuntu 24.04，Strata 0.1.44.1，SC117 GSQ-RCO IQ3_XXS，FP16 KV，256K 上下文，全程本地推理。下方初版部署记录保留 46 GB / 128K 的历史数据。
 >
 > 文中性能数字除特别注明外，均为我自己机器实测；不同 CPU、内存、显卡结果会有差异，仅供参考。
+
+> **2026-10-26 更新 · v1.2.0**
+>
+> - 保持模型与精度，采用 `--pool-tasks 192`、`STRATA_ADAPT_OVERLAP=1` 和 `STRATA_ADAPT_OVERLAP_RESIDENT=1`。实际配置下 12 组配对全部更快：短文本 **+11.3%**、代码 **+8.1%**、8K 输入后生成 **+6.6%**。
+> - 固定相同执行计划的 11 组样本，文本、首步全词表数值和完整保存状态一致；不宣称自动策略下任意输出都逐字相同。
+> - 缓存单次续问对照：约 3.3 万 / 10.3 万 token 的首字等待 **19.53→1.28 秒 / 60.07→2.52 秒**，含恢复、不含模型加载。此收益来自缓存复用，不能算成调度提速。
+> - GPU 解锁的 Tensor 微测试接近翻倍，但所测 Qwen 生成没有稳定收益，最终恢复正常 GPU 启动。
+> - [完整实测与配置](docs/benchmarks-2026-10-26.md) · [公开逐条数据](benchmarks/2026-10-26/) · [Release v1.2.0](https://github.com/yxhpy/qwen3.8-flash-next-local-deploy/releases/tag/v1.2.0)。这次共记录 249 次生成，包含预热和筛选。
 
 > **2026-10-21 更新**
 >
@@ -43,7 +51,7 @@
 
 ---
 
-## 三、我的实测
+## 三、2026-10-14 初版实测
 
 **机器**：RTX 4080 SUPER 16G（PCIe 4.0 x16）/ i7-12700 / 46G DDR4-3200（开 XMP）/ Resizable BAR 开 / Ubuntu 24.04 / 驱动 595（Ubuntu 源）
 
@@ -69,12 +77,12 @@
 | 128K + KV streaming | −10% | 换来 128K 上下文，采用 |
 | `--spec-min-p` 0.3 / 0.7、`--spec 5` | 无差别 | 保持默认 |
 | `STRATA_EXCHANGE_ROTATE=1` | 无差别 | IQ3_XXS 专家块大小不一，不生效 |
-| `STRATA_ADAPT_OVERLAP=1` | 略慢 | 不用 |
+| `STRATA_ADAPT_OVERLAP=1` | 旧配置略慢 | 2026-10-26 的 64 GB 配置重新验证后采用，见新实测 |
 | `--aux-cpus auto`、`--pool-workers 7`、CPU performance 调频 | 无差别 | 不用 |
 | `STRATA_SPEC_COUPLED=1` + `STRATA_SPEC_GUMBEL=1` | +0.5%（草稿接受率 65% → 72%） | 在波动内，不用 |
 | `--kv-grow` | — | 要求全部专家在内存，和低内存常驻模式冲突 |
 
-结论：这个负载的瓶颈是**内存带宽和容量**（CPU 侧要算 GPU 放不下的专家）。软件参数基本没空间，内存频率和容量才有用。
+当时 46 GB 配置下的判断是：CPU 侧要计算显存放不下的专家，内存带宽和容量很重要。64 GB 配置在 2026-10-26 又测出了调度收益，不能把旧配置的“无收益”外推为所有配置都没有空间。
 
 </details>
 

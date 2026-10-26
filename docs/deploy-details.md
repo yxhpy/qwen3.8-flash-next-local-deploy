@@ -193,6 +193,8 @@ strata generate: PCIe probe: 14.0 GB/s host->device ... -> pcie_frac 0.39
 | 89K 大海捞针 | 答对；prefill 1540 tok/s，首字约 58 s；该长度下 decode 38 tok/s |
 | 111K prompt + max_tokens 32000 | 正常返回（fit_max_tokens 生效） |
 
+以下为早期 46 GB 配置的历史测试。2026-10-26 的 64 GB 配置重新验证后采用了 overlap 与任务粒度调整，见 [新实测](benchmarks-2026-10-26.md)。
+
 各项改动的实测影响：
 
 | 改动 | decode | 结论 |

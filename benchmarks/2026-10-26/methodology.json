@@ -1,0 +1,65 @@
+{
+  "generation": {
+    "temperature": 0,
+    "seed": 4242,
+    "thinking_enabled": false,
+    "warmup_rounds_per_sweep": 1,
+    "short_output_limit": 256,
+    "code_output_limit": 384,
+    "8k_output_limit": 256,
+    "long_continuation_output_limit": 128
+  },
+  "screening_controls": {
+    "expert_cache_budget_argument": 3600,
+    "actual_expert_slots": 4815,
+    "expert_cache_mib": 7997,
+    "pcie_fraction": 0.2,
+    "STRATA_PREFILL_CPU_SHARE": "0",
+    "parked_conversation_cache_mib": 0,
+    "expert_profile": "same frozen copy for all arms"
+  },
+  "natural_controls": {
+    "expert_cache": "original auto",
+    "actual_expert_slots": 4995,
+    "expert_cache_mib": 8291,
+    "parked_conversation_cache_mib": 12288,
+    "cpu_share": "original auto",
+    "pcie_fraction": "original auto",
+    "expert_profile": "same frozen copy for all arms",
+    "timed_engine_order": [
+      "natural-base-1",
+      "natural-combined-1",
+      "natural-combined-2",
+      "natural-base-2"
+    ]
+  },
+  "fixed_plan_diagnostic_only": {
+    "common_args": [
+      "--suffix-draft",
+      "0",
+      "--lookup-chain",
+      "0"
+    ],
+    "installed_in_production": false,
+    "mtp_spec": 4
+  },
+  "counter_definitions": {
+    "decode": "engine timings.predicted_per_second",
+    "first_token": "client monotonic time to first nonempty content/reasoning SSE delta",
+    "gain": "ratio of per-arm medians minus one",
+    "cache_total_wait": "restore wall seconds + client first-token seconds"
+  },
+  "original_session_preservation": "Original held state was saved before maintenance and restored unchanged; business prompts were not replayed.",
+  "spare_row_diagnosis": {
+    "different_bytes": 5756,
+    "rows": 12,
+    "row_bytes": 512,
+    "other_differences": "8-byte payload checksum",
+    "verified": "Every restored spare row equals its unchanged live.dead vector; all other payload bytes equal.",
+    "source": "https://github.com/Niko1221/Strata/blob/v0.1.44.1/src/core/conversation_state.cpp"
+  },
+  "sources": [
+    "https://github.com/Niko1221/Strata/blob/v0.1.44.1/docs/DETAILS.md",
+    "https://github.com/JustAResearcher/gpu-unlock-ada/tree/d28c485418c3d9d034cd4bac19200bc33dd3453b"
+  ]
+}
